@@ -47,11 +47,12 @@
     <button class="btn secondary" style="margin-top: 25px;" onclick="window.handleLogout()">ออกจากระบบ</button>
   </div>
 
-  <script>
+<script>
     const SUPABASE_URL = 'https://qbrkowsiygpzkhupxkhv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_6HVT_-AOGP8PNVX0_Z17Iw_MCiNbcKh';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // แก้ไข: เปลี่ยนชื่อตัวแปรเป็น supabaseClient เพื่อไม่ให้ชนกับไลบรารีหลัก
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let isRegisterMode = false;
     let realtimeChannel = null;
@@ -84,7 +85,8 @@
 
       try {
         if (isRegisterMode) {
-          const { data, error } = await supabase.auth.signUp({
+          // แก้ไข: ใช้ supabaseClient
+          const { data, error } = await supabaseClient.auth.signUp({
             email: email,
             password: password,
             options: { data: { username: username || email.split('@')[0] } }
@@ -97,7 +99,8 @@
             alert('สมัครสมาชิกและเข้าสู่ระบบสำเร็จ!');
           }
         } else {
-          const { data, error } = await supabase.auth.signInWithPassword({
+          // แก้ไข: ใช้ supabaseClient
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
             email: email,
             password: password
           });
@@ -110,8 +113,9 @@
 
     // 3. ออกจากระบบ
     window.handleLogout = async function() {
-      if (realtimeChannel) supabase.removeChannel(realtimeChannel);
-      await supabase.auth.signOut();
+      // แก้ไข: ใช้ supabaseClient
+      if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
+      await supabaseClient.auth.signOut();
     };
 
     // 4. แสดงหน้า Dashboard และเริ่ม Realtime
@@ -120,7 +124,8 @@
       document.getElementById('app-box').classList.remove('hidden');
 
       // ดึงคะแนน
-      const { data, error } = await supabase
+      // แก้ไข: ใช้ supabaseClient
+      const { data, error } = await supabaseClient
         .from('profiles')
         .select('username, points')
         .eq('id', user.id)
@@ -132,8 +137,9 @@
       }
 
       // ดักฟัง Realtime การเปลี่ยนคะแนน
-      if (realtimeChannel) supabase.removeChannel(realtimeChannel);
-      realtimeChannel = supabase
+      // แก้ไข: ใช้ supabaseClient
+      if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
+      realtimeChannel = supabaseClient
         .channel(`user-points-${user.id}`)
         .on(
           'postgres_changes',
@@ -150,7 +156,8 @@
 
     // 5. กดรับแต้ม
     window.claimPoints = async function(activityType) {
-      const { data, error } = await supabase.rpc('claim_daily_points', { activity: activityType });
+      // แก้ไข: ใช้ supabaseClient
+      const { data, error } = await supabaseClient.rpc('claim_daily_points', { activity: activityType });
       if (error) {
         alert('เกิดข้อผิดพลาด: ' + error.message);
       } else if (!data.success) {
@@ -159,7 +166,8 @@
     };
 
     // 6. ตรวจสอบสถานะผู้ใช้ (ล็อกอินค้างไว้)
-    supabase.auth.onAuthStateChange((event, session) => {
+    // แก้ไข: ใช้ supabaseClient
+    supabaseClient.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         initDashboard(session.user);
       } else {
