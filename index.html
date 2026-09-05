@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Habit Points</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f3f4f6; }
+    .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 380px; text-align: center; }
+    .score { font-size: 3.5rem; font-weight: 800; color: #16a34a; margin: 10px 0; transition: transform 0.2s; }
+    input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.95rem; outline: none; }
+    input:focus { border-color: #2563eb; }
+    .btn { display: block; width: 100%; margin-top: 10px; padding: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; border-radius: 8px; border: none; background: #2563eb; color: white; transition: background 0.15s; }
+    .btn:hover { background: #1d4ed8; }
+    .btn.workout { background: #9333ea; }
+    .btn.workout:hover { background: #7e22ce; }
+    .btn.secondary { background: #e5e7eb; color: #374151; }
+    .btn.secondary:hover { background: #d1d5db; }
+    .btn-link { background: none; border: none; color: #2563eb; cursor: pointer; font-size: 0.9rem; margin-top: 15px; text-decoration: underline; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- กล่องฟอร์ม Auth (สมัคร / เข้าสู่ระบบ) -->
+  <div class="card" id="auth-box">
+    <h2 id="auth-title">เข้าสู่ระบบ</h2>
+    
+    <input type="text" id="reg-username" class="hidden" placeholder="ชื่อเล่น (Username)">
+    <input type="email" id="auth-email" placeholder="อีเมล">
+    <input type="password" id="auth-password" placeholder="รหัสผ่าน (อย่างน้อย 6 ตัว)">
+    
+    <button class="btn" id="auth-btn" onclick="window.handleAuth()">เข้าสู่ระบบ</button>
+    <button class="btn-link" id="toggle-link" onclick="window.toggleAuthMode()">ยังไม่มีบัญชี? กดสมัครสมาชิก</button>
+  </div>
+
+  <!-- กล่องหน้า Dashboard คะแนน (แสดงเมื่อล็อกอินแล้ว) -->
+  <div class="card hidden" id="app-box">
+    <h3 id="user-display" style="margin: 0; color: #4b5563;">ผู้ใช้งาน</h3>
+    <div class="score" id="user-points">0</div>
+    <p style="color: #9ca3af; margin: 0 0 20px 0;">คะแนนสะสม</p>
+
+    <button class="btn" onclick="window.claimPoints('running')">🏃 วิ่งเสร็จแล้ว (+20)</button>
+    <button class="btn workout" onclick="window.claimPoints('workout')">🏋️ ออกกำลังกายเสร็จแล้ว (+60)</button>
+    <button class="btn secondary" style="margin-top: 25px;" onclick="window.handleLogout()">ออกจากระบบ</button>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://qbrkowsiygpzkhupxkhv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFicmtvd3NpeWdwemtodXB4a2h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MzYzNTUsImV4cCI6MjEwNDIxMjM1NX0.ol2jU6AxC3nrf7xYnQlJ9JQrd38O391XCug3UmcT0Bw';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let isRegisterMode = false;
+    let realtimeChannel = null;
+
+    // 1. สลับโหมดฟอร์ม
+    window.toggleAuthMode = function() {
+      isRegisterMode = !isRegisterMode;
+      document.getElementById('auth-title').innerText = isRegisterMode ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
+      document.getElementById('auth-btn').innerText = isRegisterMode ? 'สร้างบัญชี' : 'เข้าสู่ระบบ';
+      document.getElementById('toggle-link').innerText = isRegisterMode ? 'มีบัญชีแล้ว? เข้าสู่ระบบ' : 'ยังไม่มีบัญชี? กดสมัครสมาชิก';
+      
+      const usernameInput = document.getElementById('reg-username');
+      if (isRegisterMode) {
+        usernameInput.classList.remove('hidden');
+      } else {
+        usernameInput.classList.add('hidden');
+      }
+    };
+
+    // 2. จัดการสมัคร / ล็อกอิน
+    window.handleAuth = async function() {
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const username = document.getElementById('reg-username').value.trim();
+
+      if (!email || !password) {
+        alert('กรุณากรอกทั้งอีเมลและรหัสผ่าน');
+        return;
+      }
+
+      try {
+        if (isRegisterMode) {
+          const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: { data: { username: username || email.split('@')[0] } }
+          });
+          if (error) throw error;
+          
+          if (!data.session) {
+            alert('สมัครสมาชิกสำเร็จ! แต่ต้องไปกดลิงก์ยืนยันในอีเมลก่อน (หรือไปปิด Confirm email ในตั้งค่า Supabase)');
+          } else {
+            alert('สมัครสมาชิกและเข้าสู่ระบบสำเร็จ!');
+          }
+        } else {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+          if (error) throw error;
+        }
+      } catch (err) {
+        alert('เกิดข้อผิดพลาด: ' + err.message);
+      }
+    };
+
+    // 3. ออกจากระบบ
+    window.handleLogout = async function() {
+      if (realtimeChannel) supabase.removeChannel(realtimeChannel);
+      await supabase.auth.signOut();
+    };
+
+    // 4. แสดงหน้า Dashboard และเริ่ม Realtime
+    async function initDashboard(user) {
+      document.getElementById('auth-box').classList.add('hidden');
+      document.getElementById('app-box').classList.remove('hidden');
+
+      // ดึงคะแนน
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username, points')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (data) {
+        document.getElementById('user-display').innerText = คุณ ${data.username || 'ผู้ใช้'};
+        document.getElementById('user-points').innerText = data.points ?? 0;
+      }
+
+      // ดักฟัง Realtime การเปลี่ยนคะแนน
+      if (realtimeChannel) supabase.removeChannel(realtimeChannel);
+      realtimeChannel = supabase
+        .channel(user-points-${user.id})
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'profiles', filter: id=eq.${user.id} },
+          (payload) => {
+            const scoreEl = document.getElementById('user-points');
+            scoreEl.innerText = payload.new.points;
+            scoreEl.style.transform = 'scale(1.25)';
+            setTimeout(() => scoreEl.style.transform = 'scale(1)', 200);
+          }
+        )
+        .subscribe();
+    }
+
+    // 5. กดรับแต้ม
+    window.claimPoints = async function(activityType) {
+      const { data, error } = await supabase.rpc('claim_daily_points', { activity: activityType });
+      if (error) {
+        alert('เกิดข้อผิดพลาด: ' + error.message);
+      } else if (!data.success) {
+        alert(data.message);
+      }
+    };
+
+    // 6. ตรวจสอบสถานะผู้ใช้ (ล็อกอินค้างไว้)
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        initDashboard(session.user);
+      } else {
+        document.getElementById('app-box').classList.add('hidden');
+        document.getElementById('auth-box').classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
