@@ -49,7 +49,7 @@
 
   <script>
     const SUPABASE_URL = 'https://qbrkowsiygpzkhupxkhv.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFicmtvd3NpeWdwemtodXB4a2h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MzYzNTUsImV4cCI6MjEwNDIxMjM1NX0.ol2jU6AxC3nrf7xYnQlJ9JQrd38O391XCug3UmcT0Bw';
+    const SUPABASE_ANON_KEY = 'sb_publishable_6HVT_-AOGP8PNVX0_Z17Iw_MCiNbcKh';
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -127,17 +127,20 @@
         .maybeSingle();
 
       if (data) {
-        document.getElementById('user-display').innerText = คุณ ${data.username || 'ผู้ใช้'};
+        // แก้ไข: ใส่ Backtick (`) ครอบ
+        document.getElementById('user-display').innerText = `คุณ ${data.username || 'ผู้ใช้'}`;
         document.getElementById('user-points').innerText = data.points ?? 0;
       }
 
       // ดักฟัง Realtime การเปลี่ยนคะแนน
       if (realtimeChannel) supabase.removeChannel(realtimeChannel);
       realtimeChannel = supabase
-        .channel(user-points-${user.id})
+        // แก้ไข: ใส่ Backtick (`) ครอบ
+        .channel(`user-points-${user.id}`)
         .on(
           'postgres_changes',
-          { event: 'UPDATE', schema: 'public', table: 'profiles', filter: id=eq.${user.id} },
+          // แก้ไข: ใส่ Backtick (`) ครอบตรง filter
+          { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` },
           (payload) => {
             const scoreEl = document.getElementById('user-points');
             scoreEl.innerText = payload.new.points;
