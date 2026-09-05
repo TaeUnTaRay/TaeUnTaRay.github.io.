@@ -127,7 +127,6 @@
         .maybeSingle();
 
       if (data) {
-        // แก้ไข: ใส่ Backtick (`) ครอบ
         document.getElementById('user-display').innerText = `คุณ ${data.username || 'ผู้ใช้'}`;
         document.getElementById('user-points').innerText = data.points ?? 0;
       }
@@ -135,11 +134,9 @@
       // ดักฟัง Realtime การเปลี่ยนคะแนน
       if (realtimeChannel) supabase.removeChannel(realtimeChannel);
       realtimeChannel = supabase
-        // แก้ไข: ใส่ Backtick (`) ครอบ
         .channel(`user-points-${user.id}`)
         .on(
           'postgres_changes',
-          // แก้ไข: ใส่ Backtick (`) ครอบตรง filter
           { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` },
           (payload) => {
             const scoreEl = document.getElementById('user-points');
