@@ -18,11 +18,11 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-dark); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; }
+    body { background-color: var(--bg-dark); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px 12px; }
 
-    .app-container { width: 100%; max-width: 420px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 28px; padding: 24px 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); position: relative; overflow: hidden; }
+    .app-container { width: 100%; max-width: 420px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 28px; padding: 24px 18px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7); position: relative; overflow: hidden; }
 
-    /* ตกแต่งแสงไฟด้านหลังการ์ด */
+    /* เปลวไฟ background effect */
     .app-container::before {
       content: "";
       position: absolute;
@@ -38,26 +38,26 @@
 
     .content { position: relative; z-index: 1; }
 
-    /* หัวข้อใหญ่สะกดสายตา */
-    .header-section { text-align: center; margin-bottom: 20px; }
-    .date-badge { display: inline-block; padding: 6px 14px; background: rgba(255, 255, 255, 0.06); border-radius: 20px; font-size: 0.8rem; color: var(--fire-yellow); font-weight: 600; margin-bottom: 12px; letter-spacing: 0.5px; }
-    .main-title { font-size: 1.1rem; font-weight: 500; color: var(--text-muted); }
-    .hours-highlight { font-size: 2.5rem; font-weight: 900; background: var(--fire-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; margin-top: 4px; text-shadow: 0 10px 20px rgba(255, 69, 0, 0.2); }
+    /* หัวข้อใหญ่ */
+    .header-section { text-align: center; margin-bottom: 16px; }
+    .date-badge { display: inline-block; padding: 5px 12px; background: rgba(255, 255, 255, 0.06); border-radius: 20px; font-size: 0.8rem; color: var(--fire-yellow); font-weight: 600; margin-bottom: 8px; }
+    .main-title { font-size: 1.05rem; font-weight: 500; color: var(--text-muted); }
+    .hours-highlight { font-size: 2.3rem; font-weight: 900; background: var(--fire-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; margin-top: 4px; }
 
     /* การ์ดสรุปแต้ม */
-    .stats-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 20px; padding: 18px; text-align: center; margin-bottom: 24px; }
-    .points-number { font-size: 3rem; font-weight: 900; color: #fff; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    .points-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-    .time-detail { margin-top: 8px; font-size: 0.95rem; color: #cbd5e1; font-weight: 500; }
+    .stats-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 20px; padding: 16px; text-align: center; margin-bottom: 18px; }
+    .points-number { font-size: 2.8rem; font-weight: 900; color: #fff; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .points-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .time-detail { margin-top: 6px; font-size: 0.95rem; color: #cbd5e1; font-weight: 500; }
 
-    /* ปุ่มกดแอ็กชัน */
-    .action-group { display: flex; flex-direction: column; gap: 12px; }
+    /* ปุ่มกิจกรรม */
+    .action-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
     .btn-fire {
       width: 100%;
-      padding: 16px 20px;
+      padding: 15px 18px;
       border-radius: 16px;
       border: none;
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 700;
       color: #fff;
       cursor: pointer;
@@ -65,32 +65,97 @@
       justify-content: space-between;
       align-items: center;
       transition: all 0.2s ease;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.3);
     }
     .btn-fire:active { transform: scale(0.97); filter: brightness(1.1); }
     .btn-running { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
     .btn-workout { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-    .badge-point { background: rgba(0, 0, 0, 0.25); padding: 4px 10px; border-radius: 12px; font-size: 0.9rem; }
+    .badge-point { background: rgba(0, 0, 0, 0.3); padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; }
 
-    /* ปุ่มย้อนกลับ & ออกจากระบบ */
-    .secondary-actions { margin-top: 20px; display: flex; gap: 10px; }
-    .btn-sub { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #334155; background: rgba(255,255,255,0.03); color: var(--text-muted); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    /* ปฏิทิน Calendar Card */
+    .calendar-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 14px; margin-bottom: 16px; }
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 700; font-size: 0.95rem; }
+    .calendar-nav-btn { background: rgba(255, 255, 255, 0.08); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-weight: bold; }
+    .weekdays-grid, .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; gap: 4px; }
+    .weekday { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; padding: 4px 0; }
+    
+    .day-cell {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      position: relative;
+      background: rgba(255, 255, 255, 0.015);
+      border: 1px solid transparent;
+      transition: all 0.15s;
+    }
+    .day-cell:active { background: rgba(255, 255, 255, 0.1); }
+    .day-cell.other-month { opacity: 0.2; cursor: default; }
+    .day-cell.today { border-color: var(--fire-orange); font-weight: bold; }
+    .day-cell.selected { background: var(--fire-gradient) !important; color: #fff !important; font-weight: bold; }
+    .day-cell.has-activity::after {
+      content: "";
+      width: 4px;
+      height: 4px;
+      background: var(--fire-yellow);
+      border-radius: 50%;
+      position: absolute;
+      bottom: 3px;
+    }
+    .calendar-day-info { margin-top: 10px; padding: 8px 12px; background: #121418; border-radius: 10px; font-size: 0.85rem; color: #cbd5e1; text-align: center; }
+
+    /* ปุ่มย่อย */
+    .secondary-actions { display: flex; gap: 8px; }
+    .btn-sub { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #334155; background: rgba(255,255,255,0.03); color: var(--text-muted); font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .btn-sub:active { background: rgba(255,255,255,0.08); color: #fff; }
 
-    /* ส่วนแบบฟอร์มล็อกอิน */
+    /* อินพุตและฟอร์ม */
     input { width: 100%; padding: 14px; margin-bottom: 12px; background: #0f1115; border: 1px solid #2d3139; border-radius: 12px; font-size: 1rem; color: #fff; outline: none; }
     input:focus { border-color: var(--fire-orange); }
-    .btn-auth { width: 100%; padding: 15px; border-radius: 14px; border: none; font-size: 1rem; font-weight: 700; background: var(--fire-gradient); color: #fff; cursor: pointer; margin-top: 6px; }
+    .btn-auth { width: 100%; padding: 15px; border-radius: 14px; border: none; font-size: 1rem; font-weight: 700; background: var(--fire-gradient); color: #fff; cursor: pointer; }
     .btn-link { background: none; border: none; color: var(--fire-yellow); cursor: pointer; font-size: 0.9rem; margin-top: 16px; display: inline-block; width: 100%; text-align: center; }
     .hidden { display: none !important; }
+
+    /* In-App Toast Notification (เด้งในจอ) */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e222b;
+      border: 1px solid var(--fire-orange);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 69, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 999;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.error { border-color: #ef4444; }
   </style>
 </head>
 <body>
 
+  <!-- Toast เด้งในจอ -->
+  <div id="toast" class="toast">🔥 แจ้งเตือนข้อความ</div>
+
   <div class="app-container">
     <div class="content">
 
-      <!-- 1. หน้าต่าง Login / Register -->
+      <!-- กล่อง Login / Register -->
       <div id="auth-box">
         <div style="text-align: center; margin-bottom: 24px;">
           <h2 style="font-size: 1.8rem; font-weight: 900; background: var(--fire-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BURN & EARN 🔥</h2>
@@ -105,11 +170,11 @@
         <button class="btn-link" id="toggle-link" onclick="window.toggleAuthMode()">ยังไม่มีบัญชี? กดสร้างบัญชีใหม่</button>
       </div>
 
-      <!-- 2. หน้าต่าง Dashboard สำหรับออกกำลังกาย -->
+      <!-- หน้าจอ Dashboard -->
       <div id="app-box" class="hidden">
         
         <div class="header-section">
-          <div class="date-badge" id="current-date-display">01 มกราคม 2026</div>
+          <div class="date-badge" id="current-date-display">📅 วันนี้</div>
           <div class="main-title">วันนี้คุณได้ไป</div>
           <div class="hours-highlight" id="hours-banner">0.00 ชั่วโมง</div>
         </div>
@@ -132,6 +197,21 @@
           </button>
         </div>
 
+        <!-- ปฏิทินแสดงผลย้อนหลัง -->
+        <div class="calendar-card">
+          <div class="calendar-header">
+            <button class="calendar-nav-btn" onclick="window.changeMonth(-1)">‹</button>
+            <span id="calendar-month-year">มีนาคม 2026</span>
+            <button class="calendar-nav-btn" onclick="window.changeMonth(1)">›</button>
+          </div>
+          <div class="weekdays-grid">
+            <div class="weekday">อา</div><div class="weekday">จ</div><div class="weekday">อ</div>
+            <div class="weekday">พ</div><div class="weekday">พฤ</div><div class="weekday">ศ</div><div class="weekday">ส</div>
+          </div>
+          <div class="days-grid" id="calendar-days"></div>
+          <div class="calendar-day-info" id="calendar-selected-info">แตะวันที่ในปฏิทินเพื่อดูแต้ม</div>
+        </div>
+
         <div class="secondary-actions">
           <button class="btn-sub" onclick="window.undoLastActivity()">↩️ ย้อนกลับ</button>
           <button class="btn-sub" onclick="window.handleLogout()">ออกจากระบบ</button>
@@ -150,31 +230,105 @@
 
     let isRegisterMode = false;
     let realtimeChannel = null;
+    let dailySummaryData = {}; // เก็บ { 'YYYY-MM-DD': totalPoints }
+    let calendarDate = new Date();
 
-    // แสดงวันที่ปัจจุบันแบบภาษาไทย
-    function updateDateDisplay() {
-      const now = new Date();
-      const options = { day: 'numeric', month: 'long', year: 'numeric' };
-      const dateString = now.toLocaleDateString('th-TH', options);
-      const el = document.getElementById('current-date-display');
-      if (el) el.innerText = `📅 ${dateString}`;
+    // ระบบแจ้งเตือน Toast ในจอ
+    let toastTimeout = null;
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.innerText = message;
+      toast.className = `toast show ${isError ? 'error' : ''}`;
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.className = 'toast';
+      }, 2500);
     }
 
-    // คำนวณ 60 แต้ม = 1 ชั่วโมง
+    // คำนวณแต้มเป็นชั่วโมง (60 แต้ม = 1 ชั่วโมง)
     function updateCalculatedTime(points) {
       const pts = Number(points) || 0;
-      
-      // แปลงเป็นทศนิยมสำหรับหัวข้อใหญ่ (เช่น 1.33 ชั่วโมง)
       const decimalHours = (pts / 60).toFixed(2);
       document.getElementById('hours-banner').innerText = `${decimalHours} ชั่วโมง`;
 
-      // แปลงเป็น ชม. และ นาที สำหรับกล่องสรุป
       const hours = Math.floor(pts / 60);
       const minutes = pts % 60;
       document.getElementById('time-detail-text').innerText = `เท่ากับ ${hours} ชั่วโมง ${minutes} นาที`;
     }
 
-    // สลับโหมด Login / Register
+    // ฟังก์ชันโหลดข้อมูลแต้มรายวันเข้าปฏิทิน
+    async function loadCalendarData() {
+      const { data, error } = await supabaseClient.rpc('get_user_daily_summary');
+      if (!error && data) {
+        dailySummaryData = {};
+        data.forEach(row => {
+          dailySummaryData[row.logged_date] = Number(row.total_points);
+        });
+      }
+      renderCalendar();
+    }
+
+    // วาดปฏิทิน
+    function renderCalendar() {
+      const year = calendarDate.getFullYear();
+      const month = calendarDate.getMonth();
+      
+      const monthNames = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+      document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year + 543}`;
+
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const lastDay = new Date(year, month + 1, 0).getDate();
+      const prevLastDay = new Date(year, month, 0).getDate();
+
+      const daysContainer = document.getElementById('calendar-days');
+      daysContainer.innerHTML = '';
+
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+      // วันของเดือนก่อนหน้า
+      for (let i = firstDayIndex; i > 0; i--) {
+        const d = prevLastDay - i + 1;
+        daysContainer.innerHTML += `<div class="day-cell other-month">${d}</div>`;
+      }
+
+      // วันของเดือนปัจจุบัน
+      for (let day = 1; day <= lastDay; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const pts = dailySummaryData[dateStr] || 0;
+        const isToday = (dateStr === todayStr);
+        const hasAct = pts > 0;
+
+        const cell = document.createElement('div');
+        cell.className = `day-cell ${isToday ? 'today' : ''} ${hasAct ? 'has-activity' : ''}`;
+        cell.innerText = day;
+        cell.onclick = () => selectCalendarDay(dateStr, day, monthNames[month], pts, cell);
+        daysContainer.appendChild(cell);
+      }
+    }
+
+    function selectCalendarDay(dateStr, day, monthName, pts, cellElement) {
+      document.querySelectorAll('.day-cell').forEach(c => c.classList.remove('selected'));
+      cellElement.classList.add('selected');
+
+      const hours = Math.floor(pts / 60);
+      const minutes = pts % 60;
+      const decimalHours = (pts / 60).toFixed(2);
+
+      const infoBox = document.getElementById('calendar-selected-info');
+      if (pts > 0) {
+        infoBox.innerHTML = `📅 วันที่ ${day} ${monthName}: <b style="color:var(--fire-yellow)">${pts} แต้ม</b> (${decimalHours} ชม. หรือ ${hours} ชม. ${minutes} นาที)`;
+      } else {
+        infoBox.innerText = `📅 วันที่ ${day} ${monthName}: ยังไม่มีการออกกำลังกาย`;
+      }
+    }
+
+    window.changeMonth = function(direction) {
+      calendarDate.setMonth(calendarDate.getMonth() + direction);
+      renderCalendar();
+    };
+
+    // สลับโหมดฟอร์ม
     window.toggleAuthMode = function() {
       isRegisterMode = !isRegisterMode;
       document.getElementById('auth-title').innerText = isRegisterMode ? 'สร้างบัญชีใหม่เพื่อเริ่มลุย' : 'เข้าสู่ระบบเพื่อเริ่มสะสมแต้ม';
@@ -189,13 +343,13 @@
       }
     };
 
-    // จัดการ Login / Register
+    // ล็อกอิน / สมัคร
     window.handleAuth = async function() {
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-password').value;
       const username = document.getElementById('reg-username').value.trim();
 
-      if (!email || !password) return alert('กรุณากรอกทั้งอีเมลและรหัสผ่าน');
+      if (!email || !password) return showToast('⚠️ กรุณากรอกอีเมลและรหัสผ่าน', true);
 
       try {
         if (isRegisterMode) {
@@ -205,13 +359,14 @@
             options: { data: { username: username || email.split('@')[0] } }
           });
           if (error) throw error;
-          alert(data.session ? 'สร้างบัญชีสำเร็จ!' : 'กรุณาตรวจสอบอีเมลยืนยัน (หรือปิด Confirm email ในแดชบอร์ด)');
+          showToast(data.session ? '🎉 สร้างบัญชีสำเร็จ!' : '📩 กรุณาเช็กอีเมลยืนยันตัวตน');
         } else {
           const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
           if (error) throw error;
+          showToast('🔥 ยินดีต้อนรับกลับมา!');
         }
       } catch (err) {
-        alert('ผิดพลาด: ' + err.message);
+        showToast('❌ ' + err.message, true);
       }
     };
 
@@ -219,15 +374,17 @@
     window.handleLogout = async function() {
       if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
       await supabaseClient.auth.signOut();
+      showToast('👋 ออกจากระบบแล้ว');
     };
 
-    // แสดง Dashboard
+    // โหลดแดชบอร์ด
     async function initDashboard(user) {
       document.getElementById('auth-box').classList.add('hidden');
       document.getElementById('app-box').classList.remove('hidden');
-      updateDateDisplay();
 
-      // ดึงแต้มล่าสุด
+      const now = new Date();
+      document.getElementById('current-date-display').innerText = `📅 ${now.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+
       const { data } = await supabaseClient
         .from('profiles')
         .select('username, points')
@@ -238,7 +395,9 @@
       document.getElementById('user-points').innerText = currentPoints;
       updateCalculatedTime(currentPoints);
 
-      // เปิดฟัง Realtime
+      await loadCalendarData();
+
+      // Realtime
       if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
       realtimeChannel = supabaseClient
         .channel(`user-points-${user.id}`)
@@ -250,9 +409,9 @@
             const scoreEl = document.getElementById('user-points');
             scoreEl.innerText = newPoints;
             updateCalculatedTime(newPoints);
+            loadCalendarData(); // อัปเดตข้อมูลจุดบนปฏิทินแบบ realtime
             
-            // เอฟเฟกต์เด้งตัวเลข
-            scoreEl.style.transform = 'scale(1.25)';
+            scoreEl.style.transform = 'scale(1.2)';
             setTimeout(() => scoreEl.style.transform = 'scale(1)', 200);
           }
         )
@@ -263,25 +422,29 @@
     window.claimPoints = async function(activityType) {
       const { data, error } = await supabaseClient.rpc('claim_daily_points', { activity: activityType });
       if (error) {
-        alert('เกิดข้อผิดพลาด: ' + error.message);
+        showToast('❌ ' + error.message, true);
       } else if (!data.success) {
-        alert(data.message);
+        showToast('⚠️ ' + data.message, true);
+      } else {
+        showToast(`🔥 สำเร็จ! ได้รับ +${data.points_added} แต้ม`);
+        loadCalendarData();
       }
     };
 
-    // กดย้อนกลับ (Undo)
+    // ย้อนกลับ
     window.undoLastActivity = async function() {
       const { data, error } = await supabaseClient.rpc('undo_last_activity');
       if (error) {
-        alert('เกิดข้อผิดพลาด: ' + error.message);
+        showToast('❌ ' + error.message, true);
       } else if (!data.success) {
-        alert(data.message);
+        showToast('⚠️ ' + data.message, true);
       } else {
-        alert(`ย้อนกลับสำเร็จ หักคืน -${data.points_removed} แต้ม`);
+        showToast(`↩️ ย้อนกลับสำเร็จ หักลบ -${data.points_removed} แต้ม`);
+        loadCalendarData();
       }
     };
 
-    // เช็กสถานะการล็อกอินอัตโนมัติ
+    // ตรวจสอบสถานะการล็อกอิน
     supabaseClient.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         initDashboard(session.user);
