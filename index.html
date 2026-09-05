@@ -117,17 +117,20 @@
         .single();
 
       if (data) {
-        document.getElementById('user-display').innerText = คุณ ${data.username};
+        // แก้ไข: ใส่ Backtick (`) เพื่อใช้ Template Literal
+        document.getElementById('user-display').innerText = `คุณ ${data.username}`;
         document.getElementById('user-points').innerText = data.points;
       }
 
       // ดักฟัง Realtime การเปลี่ยนคะแนนเฉพาะของ User คนนี้
       if (realtimeChannel) supabase.removeChannel(realtimeChannel);
       realtimeChannel = supabase
-        .channel(user-points-${user.id})
+        // แก้ไข: ใส่ Backtick (`)
+        .channel(`user-points-${user.id}`) 
         .on(
           'postgres_changes',
-          { event: 'UPDATE', schema: 'public', table: 'profiles', filter: id=eq.${user.id} },
+          // แก้ไข: ใส่ Backtick (`) ตรง filter
+          { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` }, 
           (payload) => {
             const scoreEl = document.getElementById('user-points');
             scoreEl.innerText = payload.new.points;
