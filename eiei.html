@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Habit Points</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f3f4f6; }
+    .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 380px; text-align: center; }
+    .score { font-size: 3.5rem; font-weight: 800; color: #16a34a; margin: 10px 0; transition: transform 0.2s; }
+    input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.95rem; }
+    .btn { display: block; width: 100%; margin-top: 10px; padding: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; border-radius: 8px; border: none; background: #2563eb; color: white; }
+    .btn:hover { background: #1d4ed8; }
+    .btn.workout { background: #9333ea; }
+    .btn.workout:hover { background: #7e22ce; }
+    .btn.secondary { background: #e5e7eb; color: #374151; }
+    .btn.secondary:hover { background: #d1d5db; }
+    .btn-link { background: none; border: none; color: #2563eb; cursor: pointer; font-size: 0.9rem; margin-top: 15px; text-decoration: underline; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- กล่องฟอร์ม Auth (สมัคร / เข้าสู่ระบบ) -->
+  <div class="card" id="auth-box">
+    <h2 id="auth-title">เข้าสู่ระบบ</h2>
+    
+    <input type="text" id="reg-username" class="hidden" placeholder="ชื่อเล่น (Username)">
+    <input type="email" id="auth-email" placeholder="อีเมล">
+    <input type="password" id="auth-password" placeholder="รหัสผ่าน (อย่างน้อย 6 ตัว)">
+    
+    <button class="btn" id="auth-btn" onclick="handleAuth()">เข้าสู่ระบบ</button>
+    
+    <button class="btn-link" id="toggle-link" onclick="toggleAuthMode()">ยังไม่มีบัญชี? กดสมัครสมาชิก</button>
+  </div>
+
+  <!-- กล่องหน้า Dashboard คะแนน (แสดงเมื่อล็อกอินแล้ว) -->
+  <div class="card hidden" id="app-box">
+    <h3 id="user-display" style="margin: 0; color: #4b5563;">ผู้ใช้งาน</h3>
+    <div class="score" id="user-points">0</div>
+    <p style="color: #9ca3af; margin: 0 0 20px 0;">คะแนนสะสม</p>
+
+    <button class="btn" onclick="claimPoints('running')">🏃 วิ่งเสร็จแล้ว (+20)</button>
+    <button class="btn workout" onclick="claimPoints('workout')">🏋️ ออกกำลังกายเสร็จแล้ว (+60)</button>
+    
+    <button class="btn secondary" style="margin-top: 25px;" onclick="handleLogout()">ออกจากระบบ</button>
+  </div>
+
+  <script>
+    // 1. ใส่ Config จาก Supabase Project Settings ของคุณ
+    const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let isRegisterMode = false;
+    let currentUser = null;
+    let realtimeChannel = null;
+
+    // สลับหน้าฟอร์ม Login / Register
+    function toggleAuthMode() {
+      isRegisterMode = !isRegisterMode;
+      document.getElementById('auth-title').innerText = isRegisterMode ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
+      document.getElementById('auth-btn').innerText = isRegisterMode ? 'สร้างบัญชี' : 'เข้าสู่ระบบ';
+      document.getElementById('toggle-link').innerText = isRegisterMode ? 'มีบัญชีแล้ว? เข้าสู่ระบบ' : 'ยังไม่มีบัญชี? กดสมัครสมาชิก';
+      
+      const usernameInput = document.getElementById('reg-username');
+      if (isRegisterMode) {
+        usernameInput.classList.remove('hidden');
+      } else {
+        usernameInput.classList.add('hidden');
+      }
+    }
+
+    // จัดการ Login / Register
+    async function handleAuth() {
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const username = document.getElementById('reg-username').value.trim();
+
+      if (!email || !password) return alert('กรุณากรอกอีเมลและรหัสผ่าน');
+
+      if (isRegisterMode) {
+        // สมัครสมาชิก
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { username: username || email.split('@')[0] } }
+        });
+        if (error) alert(error.message);
+        else alert('สร้างบัญชีสำเร็จ! กำลังเข้าสู่ระบบ...');
+      } else {
+        // เข้าสู่ระบบ
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) alert('เข้าสู่ระบบไม่สำเร็จ: ' + error.message);
+      }
+    }
+
+    // ออกจากระบบ
+    async function handleLogout() {
+      if (realtimeChannel) supabase.removeChannel(realtimeChannel);
+      await supabase.auth.signOut();
+    }
+
+    // โหลดข้อมูลโปรไฟล์ผู้ใช้และแต้ม
+    async function initDashboard(user) {
+      currentUser = user;
+      document.getElementById('auth-box').classList.add('hidden');
+      document.getElementById('app-box').classList.remove('hidden');
+
+      // ดึงข้อมูลคะแนนปัจจุบัน
+      const { data } = await supabase
+        .from('profiles')
+        .select('username, points')
+        .eq('id', user.id)
+        .single();
+
+      if (data) {
+        document.getElementById('user-display').innerText = คุณ ${data.username};
+        document.getElementById('user-points').innerText = data.points;
+      }
+
+      // ดักฟัง Realtime การเปลี่ยนคะแนนเฉพาะของ User คนนี้
+      if (realtimeChannel) supabase.removeChannel(realtimeChannel);
+      realtimeChannel = supabase
+        .channel(user-points-${user.id})
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'profiles', filter: id=eq.${user.id} },
+          (payload) => {
+            const scoreEl = document.getElementById('user-points');
+            scoreEl.innerText = payload.new.points;
+            scoreEl.style.transform = 'scale(1.2)';
+            setTimeout(() => scoreEl.style.transform = 'scale(1)', 200);
+          }
+        )
+        .subscribe();
+    }
+
+    // ฟังก์ชันกดรับแต้ม
+    async function claimPoints(activityType) {
+      const { data, error } = await supabase.rpc('claim_daily_points', { activity: activityType });
+      if (error || !data.success) {
+        alert(data?.message || 'เกิดข้อผิดพลาด');
+      }
+    }
+
+    // ตรวจสอบสถานะการล็อกอินอัตโนมัติ (คง Session ไว้แม้ปิดแท็บหรือรีเฟรช)
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        initDashboard(session.user);
+      } else {
+        document.getElementById('app-box').classList.add('hidden');
+        document.getElementById('auth-box').classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
