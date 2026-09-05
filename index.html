@@ -2,67 +2,184 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Habit Points</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Burn & Earn - Daily Habit Tracker</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f3f4f6; }
-    .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 380px; text-align: center; }
-    .score { font-size: 3.5rem; font-weight: 800; color: #16a34a; margin: 10px 0; transition: transform 0.2s; }
-    input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.95rem; outline: none; }
-    input:focus { border-color: #2563eb; }
-    .btn { display: block; width: 100%; margin-top: 10px; padding: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; border-radius: 8px; border: none; background: #2563eb; color: white; transition: background 0.15s; }
-    .btn:hover { background: #1d4ed8; }
-    .btn.workout { background: #9333ea; }
-    .btn.workout:hover { background: #7e22ce; }
-    .btn.secondary { background: #e5e7eb; color: #374151; }
-    .btn.secondary:hover { background: #d1d5db; }
-    .btn-link { background: none; border: none; color: #2563eb; cursor: pointer; font-size: 0.9rem; margin-top: 15px; text-decoration: underline; }
+    :root {
+      --fire-orange: #ff4500;
+      --fire-yellow: #ff9f1a;
+      --fire-gradient: linear-gradient(135deg, #ff4500 0%, #ff8c00 50%, #ffa502 100%);
+      --bg-dark: #0d0e12;
+      --card-bg: #181a20;
+      --card-border: #262933;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-dark); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; }
+
+    .app-container { width: 100%; max-width: 420px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 28px; padding: 24px 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); position: relative; overflow: hidden; }
+
+    /* ตกแต่งแสงไฟด้านหลังการ์ด */
+    .app-container::before {
+      content: "";
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(255, 69, 0, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .content { position: relative; z-index: 1; }
+
+    /* หัวข้อใหญ่สะกดสายตา */
+    .header-section { text-align: center; margin-bottom: 20px; }
+    .date-badge { display: inline-block; padding: 6px 14px; background: rgba(255, 255, 255, 0.06); border-radius: 20px; font-size: 0.8rem; color: var(--fire-yellow); font-weight: 600; margin-bottom: 12px; letter-spacing: 0.5px; }
+    .main-title { font-size: 1.1rem; font-weight: 500; color: var(--text-muted); }
+    .hours-highlight { font-size: 2.5rem; font-weight: 900; background: var(--fire-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; margin-top: 4px; text-shadow: 0 10px 20px rgba(255, 69, 0, 0.2); }
+
+    /* การ์ดสรุปแต้ม */
+    .stats-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 20px; padding: 18px; text-align: center; margin-bottom: 24px; }
+    .points-number { font-size: 3rem; font-weight: 900; color: #fff; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .points-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .time-detail { margin-top: 8px; font-size: 0.95rem; color: #cbd5e1; font-weight: 500; }
+
+    /* ปุ่มกดแอ็กชัน */
+    .action-group { display: flex; flex-direction: column; gap: 12px; }
+    .btn-fire {
+      width: 100%;
+      padding: 16px 20px;
+      border-radius: 16px;
+      border: none;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+    }
+    .btn-fire:active { transform: scale(0.97); filter: brightness(1.1); }
+    .btn-running { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+    .btn-workout { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .badge-point { background: rgba(0, 0, 0, 0.25); padding: 4px 10px; border-radius: 12px; font-size: 0.9rem; }
+
+    /* ปุ่มย้อนกลับ & ออกจากระบบ */
+    .secondary-actions { margin-top: 20px; display: flex; gap: 10px; }
+    .btn-sub { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #334155; background: rgba(255,255,255,0.03); color: var(--text-muted); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-sub:active { background: rgba(255,255,255,0.08); color: #fff; }
+
+    /* ส่วนแบบฟอร์มล็อกอิน */
+    input { width: 100%; padding: 14px; margin-bottom: 12px; background: #0f1115; border: 1px solid #2d3139; border-radius: 12px; font-size: 1rem; color: #fff; outline: none; }
+    input:focus { border-color: var(--fire-orange); }
+    .btn-auth { width: 100%; padding: 15px; border-radius: 14px; border: none; font-size: 1rem; font-weight: 700; background: var(--fire-gradient); color: #fff; cursor: pointer; margin-top: 6px; }
+    .btn-link { background: none; border: none; color: var(--fire-yellow); cursor: pointer; font-size: 0.9rem; margin-top: 16px; display: inline-block; width: 100%; text-align: center; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-  <!-- กล่องฟอร์ม Auth (สมัคร / เข้าสู่ระบบ) -->
-  <div class="card" id="auth-box">
-    <h2 id="auth-title">เข้าสู่ระบบ</h2>
-    
-    <input type="text" id="reg-username" class="hidden" placeholder="ชื่อเล่น (Username)">
-    <input type="email" id="auth-email" placeholder="อีเมล">
-    <input type="password" id="auth-password" placeholder="รหัสผ่าน (อย่างน้อย 6 ตัว)">
-    
-    <button class="btn" id="auth-btn" onclick="window.handleAuth()">เข้าสู่ระบบ</button>
-    <button class="btn-link" id="toggle-link" onclick="window.toggleAuthMode()">ยังไม่มีบัญชี? กดสมัครสมาชิก</button>
+  <div class="app-container">
+    <div class="content">
+
+      <!-- 1. หน้าต่าง Login / Register -->
+      <div id="auth-box">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h2 style="font-size: 1.8rem; font-weight: 900; background: var(--fire-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BURN & EARN 🔥</h2>
+          <p id="auth-title" style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">เข้าสู่ระบบเพื่อเริ่มสะสมแต้ม</p>
+        </div>
+
+        <input type="text" id="reg-username" class="hidden" placeholder="ชื่อเล่น (Username)">
+        <input type="email" id="auth-email" placeholder="อีเมล">
+        <input type="password" id="auth-password" placeholder="รหัสผ่าน (อย่างน้อย 6 ตัว)">
+
+        <button class="btn-auth" id="auth-btn" onclick="window.handleAuth()">เข้าสู่ระบบ</button>
+        <button class="btn-link" id="toggle-link" onclick="window.toggleAuthMode()">ยังไม่มีบัญชี? กดสร้างบัญชีใหม่</button>
+      </div>
+
+      <!-- 2. หน้าต่าง Dashboard สำหรับออกกำลังกาย -->
+      <div id="app-box" class="hidden">
+        
+        <div class="header-section">
+          <div class="date-badge" id="current-date-display">01 มกราคม 2026</div>
+          <div class="main-title">วันนี้คุณได้ไป</div>
+          <div class="hours-highlight" id="hours-banner">0.00 ชั่วโมง</div>
+        </div>
+
+        <div class="stats-card">
+          <div class="points-number" id="user-points">0</div>
+          <div class="points-label">Total Points สะสม</div>
+          <div class="time-detail" id="time-detail-text">เท่ากับ 0 ชม. 0 นาที</div>
+        </div>
+
+        <div class="action-group">
+          <button class="btn-fire btn-running" onclick="window.claimPoints('running')">
+            <span>🏃 วิ่ง (ไม่จำกัดรอบ)</span>
+            <span class="badge-point">+20 แต้ม</span>
+          </button>
+          
+          <button class="btn-fire btn-workout" onclick="window.claimPoints('workout')">
+            <span>🏋️ ออกกำลังกาย</span>
+            <span class="badge-point">+60 แต้ม</span>
+          </button>
+        </div>
+
+        <div class="secondary-actions">
+          <button class="btn-sub" onclick="window.undoLastActivity()">↩️ ย้อนกลับ</button>
+          <button class="btn-sub" onclick="window.handleLogout()">ออกจากระบบ</button>
+        </div>
+
+      </div>
+
+    </div>
   </div>
 
-  <!-- กล่องหน้า Dashboard คะแนน (แสดงเมื่อล็อกอินแล้ว) -->
-  <div class="card hidden" id="app-box">
-    <h3 id="user-display" style="margin: 0; color: #4b5563;">ผู้ใช้งาน</h3>
-    <div class="score" id="user-points">0</div>
-    <p style="color: #9ca3af; margin: 0 0 20px 0;">คะแนนสะสม</p>
-
-    <button class="btn" onclick="window.claimPoints('running')">🏃 วิ่งเสร็จแล้ว (+20)</button>
-    <button class="btn workout" onclick="window.claimPoints('workout')">🏋️ ออกกำลังกายเสร็จแล้ว (+60)</button>
-    <button class="btn secondary" style="margin-top: 25px;" onclick="window.handleLogout()">ออกจากระบบ</button>
-  </div>
-
-<script>
+  <script>
     const SUPABASE_URL = 'https://qbrkowsiygpzkhupxkhv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_6HVT_-AOGP8PNVX0_Z17Iw_MCiNbcKh';
 
-    // แก้ไข: เปลี่ยนชื่อตัวแปรเป็น supabaseClient เพื่อไม่ให้ชนกับไลบรารีหลัก
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let isRegisterMode = false;
     let realtimeChannel = null;
 
-    // 1. สลับโหมดฟอร์ม
+    // แสดงวันที่ปัจจุบันแบบภาษาไทย
+    function updateDateDisplay() {
+      const now = new Date();
+      const options = { day: 'numeric', month: 'long', year: 'numeric' };
+      const dateString = now.toLocaleDateString('th-TH', options);
+      const el = document.getElementById('current-date-display');
+      if (el) el.innerText = `📅 ${dateString}`;
+    }
+
+    // คำนวณ 60 แต้ม = 1 ชั่วโมง
+    function updateCalculatedTime(points) {
+      const pts = Number(points) || 0;
+      
+      // แปลงเป็นทศนิยมสำหรับหัวข้อใหญ่ (เช่น 1.33 ชั่วโมง)
+      const decimalHours = (pts / 60).toFixed(2);
+      document.getElementById('hours-banner').innerText = `${decimalHours} ชั่วโมง`;
+
+      // แปลงเป็น ชม. และ นาที สำหรับกล่องสรุป
+      const hours = Math.floor(pts / 60);
+      const minutes = pts % 60;
+      document.getElementById('time-detail-text').innerText = `เท่ากับ ${hours} ชั่วโมง ${minutes} นาที`;
+    }
+
+    // สลับโหมด Login / Register
     window.toggleAuthMode = function() {
       isRegisterMode = !isRegisterMode;
-      document.getElementById('auth-title').innerText = isRegisterMode ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
+      document.getElementById('auth-title').innerText = isRegisterMode ? 'สร้างบัญชีใหม่เพื่อเริ่มลุย' : 'เข้าสู่ระบบเพื่อเริ่มสะสมแต้ม';
       document.getElementById('auth-btn').innerText = isRegisterMode ? 'สร้างบัญชี' : 'เข้าสู่ระบบ';
-      document.getElementById('toggle-link').innerText = isRegisterMode ? 'มีบัญชีแล้ว? เข้าสู่ระบบ' : 'ยังไม่มีบัญชี? กดสมัครสมาชิก';
+      document.getElementById('toggle-link').innerText = isRegisterMode ? 'มีบัญชีแล้ว? เข้าสู่ระบบ' : 'ยังไม่มีบัญชี? กดสร้างบัญชีใหม่';
       
       const usernameInput = document.getElementById('reg-username');
       if (isRegisterMode) {
@@ -72,72 +189,56 @@
       }
     };
 
-    // 2. จัดการสมัคร / ล็อกอิน
+    // จัดการ Login / Register
     window.handleAuth = async function() {
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-password').value;
       const username = document.getElementById('reg-username').value.trim();
 
-      if (!email || !password) {
-        alert('กรุณากรอกทั้งอีเมลและรหัสผ่าน');
-        return;
-      }
+      if (!email || !password) return alert('กรุณากรอกทั้งอีเมลและรหัสผ่าน');
 
       try {
         if (isRegisterMode) {
-          // แก้ไข: ใช้ supabaseClient
           const { data, error } = await supabaseClient.auth.signUp({
-            email: email,
-            password: password,
+            email,
+            password,
             options: { data: { username: username || email.split('@')[0] } }
           });
           if (error) throw error;
-          
-          if (!data.session) {
-            alert('สมัครสมาชิกสำเร็จ! แต่ต้องไปกดลิงก์ยืนยันในอีเมลก่อน (หรือไปปิด Confirm email ในตั้งค่า Supabase)');
-          } else {
-            alert('สมัครสมาชิกและเข้าสู่ระบบสำเร็จ!');
-          }
+          alert(data.session ? 'สร้างบัญชีสำเร็จ!' : 'กรุณาตรวจสอบอีเมลยืนยัน (หรือปิด Confirm email ในแดชบอร์ด)');
         } else {
-          // แก้ไข: ใช้ supabaseClient
-          const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password
-          });
+          const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
           if (error) throw error;
         }
       } catch (err) {
-        alert('เกิดข้อผิดพลาด: ' + err.message);
+        alert('ผิดพลาด: ' + err.message);
       }
     };
 
-    // 3. ออกจากระบบ
+    // ออกจากระบบ
     window.handleLogout = async function() {
-      // แก้ไข: ใช้ supabaseClient
       if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
       await supabaseClient.auth.signOut();
     };
 
-    // 4. แสดงหน้า Dashboard และเริ่ม Realtime
+    // แสดง Dashboard
     async function initDashboard(user) {
       document.getElementById('auth-box').classList.add('hidden');
       document.getElementById('app-box').classList.remove('hidden');
+      updateDateDisplay();
 
-      // ดึงคะแนน
-      // แก้ไข: ใช้ supabaseClient
-      const { data, error } = await supabaseClient
+      // ดึงแต้มล่าสุด
+      const { data } = await supabaseClient
         .from('profiles')
         .select('username, points')
         .eq('id', user.id)
         .maybeSingle();
 
-      if (data) {
-        document.getElementById('user-display').innerText = `คุณ ${data.username || 'ผู้ใช้'}`;
-        document.getElementById('user-points').innerText = data.points ?? 0;
-      }
+      const currentPoints = data?.points ?? 0;
+      document.getElementById('user-points').innerText = currentPoints;
+      updateCalculatedTime(currentPoints);
 
-      // ดักฟัง Realtime การเปลี่ยนคะแนน
-      // แก้ไข: ใช้ supabaseClient
+      // เปิดฟัง Realtime
       if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
       realtimeChannel = supabaseClient
         .channel(`user-points-${user.id}`)
@@ -145,8 +246,12 @@
           'postgres_changes',
           { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` },
           (payload) => {
+            const newPoints = payload.new.points ?? 0;
             const scoreEl = document.getElementById('user-points');
-            scoreEl.innerText = payload.new.points;
+            scoreEl.innerText = newPoints;
+            updateCalculatedTime(newPoints);
+            
+            // เอฟเฟกต์เด้งตัวเลข
             scoreEl.style.transform = 'scale(1.25)';
             setTimeout(() => scoreEl.style.transform = 'scale(1)', 200);
           }
@@ -154,9 +259,8 @@
         .subscribe();
     }
 
-    // 5. กดรับแต้ม
+    // บวกแต้ม
     window.claimPoints = async function(activityType) {
-      // แก้ไข: ใช้ supabaseClient
       const { data, error } = await supabaseClient.rpc('claim_daily_points', { activity: activityType });
       if (error) {
         alert('เกิดข้อผิดพลาด: ' + error.message);
@@ -165,8 +269,19 @@
       }
     };
 
-    // 6. ตรวจสอบสถานะผู้ใช้ (ล็อกอินค้างไว้)
-    // แก้ไข: ใช้ supabaseClient
+    // กดย้อนกลับ (Undo)
+    window.undoLastActivity = async function() {
+      const { data, error } = await supabaseClient.rpc('undo_last_activity');
+      if (error) {
+        alert('เกิดข้อผิดพลาด: ' + error.message);
+      } else if (!data.success) {
+        alert(data.message);
+      } else {
+        alert(`ย้อนกลับสำเร็จ หักคืน -${data.points_removed} แต้ม`);
+      }
+    };
+
+    // เช็กสถานะการล็อกอินอัตโนมัติ
     supabaseClient.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         initDashboard(session.user);
